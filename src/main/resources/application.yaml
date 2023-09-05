@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/pay_amigo_app
+    username: root
+    password: root
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+      connection-url: jdbc:mysql://localhost:3306/pay_amigo_app
+      dialect: org.hibernate.dialect.MySQLDialect
