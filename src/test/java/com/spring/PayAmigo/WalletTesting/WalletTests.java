@@ -23,8 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.util.AssertionErrors.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -103,8 +102,7 @@ public class WalletTests {
                         .content(jsonContent))
                 .andReturn();
 
-        int httpStatus = result.getResponse().getStatus();
-        assertEquals(httpStatus, 400);
+        assertEquals("The userID that is assign to this wallet doesn't exist", result.getResponse().getContentAsString());
     }
     @Test
     void getAllWalletsByUserId () {
@@ -147,6 +145,74 @@ public class WalletTests {
 
         assertArrayEquals(walletsIds.stream().mapToLong(l -> l).toArray(), wallets_from_dbIds.stream().mapToLong(l -> l).toArray());
 
+    }
+
+    @Test
+    void getEmptyWallets () {
+        WalletDTO walletDTO1 = new WalletDTO();
+        walletDTO1.setUser_id(1L);
+        walletDTO1.setName("empty_wallet");
+        walletDTO1.setBalance(0.0);
+        Wallet wallet1 = walletService.addWallet(walletDTO1);
+
+        List<Wallet> wallets_from_db = walletService.getEmptyWallets();
+
+        List<Wallet> wallets = Arrays.asList(wallet1);
+
+        List<Long> walletsIds = new ArrayList<>();
+        for (Wallet wallet : wallets) {
+            walletsIds.add(wallet.getId());
+        }
+
+        List<Long> wallets_from_dbIds = new ArrayList<>();
+        for (Wallet wallet : wallets_from_db) {
+            wallets_from_dbIds.add(wallet.getId());
+
+        }
+        assertArrayEquals(walletsIds.stream().mapToLong(l -> l).toArray(), wallets_from_dbIds.stream().mapToLong(l -> l).toArray());
+    }
+
+    @Test
+    void addMoney () throws Exception {
+        Double value = 5.0;
+        Double initial_balance = walletService.getById(1L).getBalance();
+        walletService.addMoney(1L, value);
+        Double after_add = walletService.getById(1L).getBalance();
+
+        assertEquals(initial_balance + value, after_add);
+    }
+
+    @Test
+    void withdrawMoney () throws Exception {
+        Double value = 5.0;
+        Double initial_balance = walletService.getById(1L).getBalance();
+        walletService.withdrawMoney(1L, value);
+        Double after_add = walletService.getById(1L).getBalance();
+
+        assertEquals(initial_balance - value, after_add);
+    }
+
+    @Test
+    void withdrawMoreMoneyThanYouHave () throws Exception {
+        MvcResult result = mockMvc.perform(post("/api/wallets/withdraw_money")
+                        .param("value", "1000000.0")
+                        .param("id", "1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        assertEquals(result.getResponse().getContentAsString(), "Insufficient funds");
+    }
+
+
+    @Test
+    void addMoneyNegativeAmount () throws Exception {
+        MvcResult result = mockMvc.perform(post("/api/wallets/add_money")
+                        .param("value", "-10.0")
+                        .param("id", "1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        assertEquals(result.getResponse().getContentAsString(), "No negative amounts");
     }
 
 }

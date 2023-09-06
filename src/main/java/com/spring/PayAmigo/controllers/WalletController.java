@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -35,5 +36,25 @@ public class WalletController {
     @GetMapping ("/wallets/find")
     public ResponseEntity<List<Wallet>> getWalletByUserId (@RequestParam (name = "id") Long id){
         return new ResponseEntity<>(walletService.findByUserId(id), HttpStatus.OK);
+    }
+
+    @PostMapping ("wallets/add_money")
+    public ResponseEntity<String> addMoney (@RequestParam (name = "value") Double value
+                                                            , @RequestParam (name = "id") Long id){
+        String response = walletService.addMoney(id, value);
+        if (Objects.equals(response, "Add succeeded")){
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping ("wallets/withdraw_money")
+    public ResponseEntity<String> withdrawMoney (@RequestParam (name = "value") Double value
+            , @RequestParam (name = "id") Long id){
+        String response = walletService.withdrawMoney(id, value);
+        if (Objects.equals(response, "Withdraw succeeded")){
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

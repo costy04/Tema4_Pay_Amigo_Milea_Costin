@@ -36,6 +36,11 @@ public class WalletService {
         if (user == null){
             return null;
         }
+
+        if (walletDTO.getBalance() < 0) {
+            throw new RuntimeException("No negative amount allowed");
+        }
+
         return walletRepository.save(wallet);
     }
 
@@ -45,5 +50,51 @@ public class WalletService {
 
     public Wallet getWalletByName (String name) {
         return walletRepository.findByName(name);
+    }
+
+    public List<Wallet> getEmptyWallets () {
+        return walletRepository.findEmptyWallets();
+    }
+
+    public Wallet getById (Long id) {
+        Optional<Wallet> walletOptional = walletRepository.findById(id);
+        if (walletOptional.isPresent()) {
+            return walletOptional.get();
+        }
+        return null;
+    }
+
+    public String addMoney (Long id, Double value) {
+        Optional<Wallet> walletResponse = walletRepository.findById(id);
+        if (walletResponse.isPresent() && value > 0){
+            Wallet wallet = walletResponse.get();
+            walletRepository.updateBalance(id, wallet.getBalance() + value);
+            return "Add succeeded";
+        }
+        else if (value < 0) {
+            return "No negative amounts";
+        }
+        else {
+            return "No user found with ID";
+        }
+    }
+
+    public String withdrawMoney (Long id, Double value) {
+        Optional<Wallet> walletResponse = walletRepository.findById(id);
+        if (walletResponse.isPresent() & value > 0){
+            Wallet wallet = walletResponse.get();
+            if (wallet.getBalance() - value < 0) {
+                return "Insufficient funds";
+            }
+            walletRepository.updateBalance(id, wallet.getBalance() - value);
+            return "Withdraw succeeded";
+        }
+        else if (value < 0) {
+            return "No negative amounts";
+        }
+        else {
+            return "No user found with ID";
+        }
+
     }
 }
