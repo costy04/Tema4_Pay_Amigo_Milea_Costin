@@ -7,8 +7,11 @@ import com.spring.PayAmigo.repositories.TransactionRepository;
 import com.spring.PayAmigo.repositories.WalletRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,9 +32,14 @@ public class TransactionService {
     public String addTransaction (TransactionDTO transactionDTO) {
         Transaction transaction = new Transaction();
         transaction.setAmount(transactionDTO.getAmount());
+        transaction.setCreated_at(transactionDTO.getCreated_at());
 
         Wallet sourceWallet = walletRepository.findById(transactionDTO.getSource_id()).orElse(null);
         Wallet destinationWallet = walletRepository.findById(transactionDTO.getDestination_id()).orElse(null);
+
+        if (transactionDTO.getCreated_at().isBefore(LocalDateTime.now())){
+            return "No past transaction are allowed";
+        }
 
         if (destinationWallet == null) {
             return "No destination found";

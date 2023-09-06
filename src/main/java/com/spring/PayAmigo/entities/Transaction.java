@@ -3,6 +3,9 @@ package com.spring.PayAmigo.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Data
 @Entity
 @Table(name = "transaction")
@@ -20,6 +23,8 @@ public class Transaction {
     private Wallet destinationWallet;
 
     private Double amount;
+
+    private LocalDateTime created_at;
 
 
 

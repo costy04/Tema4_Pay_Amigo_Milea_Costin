@@ -12,4 +12,6 @@ import java.util.Optional;
 public interface WalletRepository extends JpaRepository<Wallet, Long> {
     @Query("SELECT w FROM Wallet w WHERE w.user.user_id = :userId")
     List<Wallet> findWalletsByUserId(Long userId);
+
+    Wallet findByName(String name);
 }

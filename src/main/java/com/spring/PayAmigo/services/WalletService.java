@@ -42,4 +42,8 @@ public class WalletService {
     public List<Wallet> findByUserId (Long id) {
         return walletRepository.findWalletsByUserId(id);
     }
+
+    public Wallet getWalletByName (String name) {
+        return walletRepository.findByName(name);
+    }
 }

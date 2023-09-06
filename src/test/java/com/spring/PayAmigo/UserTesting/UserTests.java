@@ -48,20 +48,18 @@ public class UserTests {
                             .contentType(MediaType.APPLICATION_JSON))
                     .andReturn();
             String content = result.getResponse().getContentAsString();
-            System.out.println(content);
+//            System.out.println(content);
         }, "Performance issues with getAllUsers() method !");
 
     }
 
     @Test
-
 //  Creating a user
 //  It should return CREATED (201)
     void createUser() throws Exception {
-        // Exemplu de conținut JSON pentru cererea POST
         String jsonContent = "{"
-                + "\"name\": \"John Doe\","
-                + "\"email\": \"john.doe@example.com\","
+                + "\"name\": \"Johnny Depp\","
+                + "\"email\": \"john@example.com\","
                 + "\"password\": \"secretpassword\""
                 + "}";
 
@@ -77,7 +75,6 @@ public class UserTests {
     @Test
     void itShouldThrowNullPointerException () {
         User user = userService.getByName("Gigel");
-
 //      User "Gigel" doesn't exist in the database
         Throwable thrown = assertThrows(NullPointerException.class,
                 ()->{

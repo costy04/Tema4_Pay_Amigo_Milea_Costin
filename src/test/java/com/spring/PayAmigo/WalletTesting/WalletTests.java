@@ -5,11 +5,13 @@ import com.spring.PayAmigo.entities.WalletDTO;
 import com.spring.PayAmigo.services.TransactionService;
 import com.spring.PayAmigo.services.UserService;
 import com.spring.PayAmigo.services.WalletService;
+import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Repository;
 import org.springframework.test.context.TestPropertySource;
@@ -23,6 +25,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.util.AssertionErrors.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -40,6 +43,50 @@ public class WalletTests {
     private UserService userService;
     @Autowired
     private TransactionService transactionService;
+
+    @Test
+    void createWallet () throws Exception {
+        String jsonContent = "{"
+                + "\"name\": \"johnny_wallet\","
+                + "\"balance\": 9000.22,"
+                + "\"user_id\": 52"
+                + "}";
+
+        MvcResult result = mockMvc.perform(post("/api/add_wallet")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonContent))
+                .andReturn();
+
+        int httpStatus = result.getResponse().getStatus();
+        assertEquals(httpStatus, 201);
+    }
+    @Test
+    void getWalletByName () {
+        Wallet wallet = walletService.getWalletByName("vasile_wallet");
+        assertEquals("vasile_wallet", wallet.getName());
+    }
+
+
+    @Test
+    void createWalletWithAlreadyExistentName () throws Exception {
+        String jsonContent = "{"
+                + "\"name\": \"vasile_wallet\","
+                + "\"balance\": 100.22,"
+                + "\"user_id\": 102"
+                + "}";
+
+        try {
+            MvcResult result = mockMvc.perform(post("/api/add_wallet")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonContent))
+                    .andReturn();
+            fail("No ServletException");
+            //A test that should throw an ServletException because the name already exists in the database
+        }catch (ServletException e) {
+            System.out.println("NAME ALREADY EXISTS");
+            e.getStackTrace();
+        }
+    }
 
     //Creating a wallet assigned to a user of which ID doesn't exist
     //It should return BAD REQUEST (400)
@@ -59,7 +106,6 @@ public class WalletTests {
         int httpStatus = result.getResponse().getStatus();
         assertEquals(httpStatus, 400);
     }
-
     @Test
     void getAllWalletsByUserId () {
 
