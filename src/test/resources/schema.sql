@@ -24,3 +24,8 @@ CREATE TABLE transaction (
     FOREIGN KEY (source_wallet_id) REFERENCES wallet (id),
     FOREIGN KEY (destination_wallet_id) REFERENCES wallet (id)
 );
+
+-- Crearea tabelului 'transaction'
+CREATE TABLE my_user_seq (
+    next_val BIGINT AUTO_INCREMENT PRIMARY KEY
+);

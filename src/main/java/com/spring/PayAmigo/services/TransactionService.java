@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @AllArgsConstructor
 @Service
@@ -37,6 +38,14 @@ public class TransactionService {
         }
         else if (sourceWallet == null) {
             return "No source found";
+        }
+
+        if (Objects.equals(destinationWallet.getId(), sourceWallet.getId())) {
+            return "A user cannot pay itself";
+        }
+
+        if (transactionDTO.getAmount() < 0) {
+            return "Cannot pay a negative amount";
         }
 
         if (sourceWallet.getBalance() < transactionDTO.getAmount()) {

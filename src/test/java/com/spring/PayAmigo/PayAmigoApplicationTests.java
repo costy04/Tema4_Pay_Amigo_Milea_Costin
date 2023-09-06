@@ -1,5 +1,13 @@
 package com.spring.PayAmigo;
 
+import com.spring.PayAmigo.controllers.WalletController;
+import com.spring.PayAmigo.entities.User;
+import com.spring.PayAmigo.entities.Wallet;
+import com.spring.PayAmigo.entities.WalletDTO;
+import com.spring.PayAmigo.repositories.UserRepository;
+import com.spring.PayAmigo.services.TransactionService;
+import com.spring.PayAmigo.services.UserService;
+import com.spring.PayAmigo.services.WalletService;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +20,12 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -21,88 +35,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@TestPropertySource(locations = "classpath:application.properties")
+@TestPropertySource(locations = "classpath:application.yaml")
 @AutoConfigureMockMvc
 class PayAmigoApplicationTests {
 
 	@Autowired
 	private MockMvc mockMvc;
-
-	@Test
-	void getAllUsers() throws Exception {
-		MvcResult result = mockMvc.perform(get("/api/users")
-						.contentType(MediaType.APPLICATION_JSON))
-				.andReturn();
-		String content = result.getResponse().getContentAsString();
-		System.out.println(content);
-
-	}
-
-	@Test
-	void getAllWallets() throws Exception {
-		MvcResult result = mockMvc.perform(get("/api/wallets")
-						.contentType(MediaType.APPLICATION_JSON))
-				.andReturn();
-		String content = result.getResponse().getContentAsString();
-		System.out.println(content);
-
-	}
-
-	@Test
-	//Creating a user
-	//It should return CREATED (201)
-	void createUser() throws Exception {
-		// Exemplu de conținut JSON pentru cererea POST
-		String jsonContent = "{"
-				+ "\"name\": \"John Doe\","
-				+ "\"email\": \"john.doe@example.com\","
-				+ "\"password\": \"secretpassword\""
-				+ "}";
-
-		MvcResult result = mockMvc.perform(post("/api/add_user")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(jsonContent))
-				.andReturn();
-
-		int httpStatus = result.getResponse().getStatus();
-		assert httpStatus == 201;
-	}
-
-	//Creating a wallet assigned to a user of which ID doesn't exist
-	//It should return BAD REQUEST (400)
-	@Test
-	void createWalletAssociatedWithNonExistentUser() throws Exception {
-		String jsonContent = "{"
-				+ "\"name\": \"John\","
-				+ "\"balance\": 100.22,"
-				+ "\"user_id\": 2"
-				+ "}";
-
-		MvcResult result = mockMvc.perform(post("/api/add_wallet")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(jsonContent))
-				.andReturn();
-
-		int httpStatus = result.getResponse().getStatus();
-		assertEquals(httpStatus, 400);
-	}
-
-	@Test
-	void createTransactionWithAmountHigherThanBalance() throws Exception {
-		String jsonContent = "{"
-				+ "\"source_id\": \"John\","
-				+ "\"destination_id\": 11,"
-				+ "\"amount\": 1522"
-				+ "}";
-
-		MvcResult result = mockMvc.perform(post("/api/add_wallet")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(jsonContent))
-				.andReturn();
-
-		int httpStatus = result.getResponse().getStatus();
-		assertEquals(httpStatus, 400);
-	}
+	@Autowired
+	private WalletService walletService;
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private TransactionService transactionService;
 
 	@Test
 	void createWallets() throws Exception {

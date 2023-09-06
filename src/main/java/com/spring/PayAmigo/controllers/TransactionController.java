@@ -23,7 +23,8 @@ public class TransactionController {
         String response = transactionService.addTransaction(transactionDTO);
 
         switch (response) {
-            case "No destination found", "No source found", "Not enough money in the balance" -> {
+            case "No destination found", "No source found", "Not enough money in the balance",
+                    "A user cannot pay itself", "Cannot pay a negative amount" -> {
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
             case "Transaction saved" -> {

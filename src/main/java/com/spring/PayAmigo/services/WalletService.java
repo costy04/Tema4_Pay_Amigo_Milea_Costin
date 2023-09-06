@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Service
@@ -36,5 +37,9 @@ public class WalletService {
             return null;
         }
         return walletRepository.save(wallet);
+    }
+
+    public List<Wallet> findByUserId (Long id) {
+        return walletRepository.findWalletsByUserId(id);
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -29,5 +30,10 @@ public class WalletController {
     @GetMapping ("/wallets")
     public ResponseEntity<List<Wallet>> getAllWallets () {
         return new ResponseEntity<>(walletService.getAllWallets(), HttpStatus.OK);
+    }
+
+    @GetMapping ("/wallets/find")
+    public ResponseEntity<List<Wallet>> getWalletByUserId (@RequestParam (name = "id") Long id){
+        return new ResponseEntity<>(walletService.findByUserId(id), HttpStatus.OK);
     }
 }
